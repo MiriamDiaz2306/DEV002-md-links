@@ -1,27 +1,27 @@
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
+const fs = require('fs'); // importando y asignando file system modulo de tiempo ejecucion
+const path = require('path');//trabaja c/rutas de archivo y directorio en el sistema de archivos.
+const axios = require('axios');//solicitudes HTTP a servidores y recibir respuestas de ellos, y es muy útil para consumir API's
 
 // Se verifica si la ruta existe o no
-const pathExists = (route) => fs.existsSync(route);
+const pathExists = (route) => fs.existsSync(route);//comprueba si la ruta del archivo existe, valor booleano t o f indica si la ruta del archivo existe o no.
 
 // Verifica si la ruta es absoluta
-const pathIsAbsolute = (absoluteRoute) => path.isAbsolute(absoluteRoute);
+const pathIsAbsolute = (absoluteRoute) => path.isAbsolute(absoluteRoute);//comprueba si la ruta del archivo es una ruta absoluta. valor booleano (true o false)
 
 // si es relativa la convierte a absoluta
-const turnPathAbsolute = (route) => (pathIsAbsolute(route) ? route : path.resolve(route));
+const turnPathAbsolute = (route) => (pathIsAbsolute(route) ? route : path.resolve(route));// de Node.js para convertirla en una ruta absoluta.pathIsAbsolute que se supone que se ha definido anteriormente
 
 // verifica si la extension de la ruta es MD
-const isExtensionMd = (route) => path.extname(route) === '.md';
+const isExtensionMd = (route) => path.extname(route) === '.md';// verifica la extensión del archivo especificado en route, y compara la extensión con el valor '.md'. boolean
 
 // Si no es un archivo md busca archivos .md en un directorio
-const searchMdFilesInDir = (dir) => {
-  const files = fs.readdirSync(dir); // lee el contenido del directorio
+const searchMdFilesInDir = (dir) => {//devuelve una nueva lista que contiene solo los archivos con la extensión .md
+  const files = fs.readdirSync(dir); // lee el contenido del directorio.devuelve una lista de archivos y directorios dentro del directorio especificado.
   return files.filter((file) => isExtensionMd(file)); // filtra los archivos con extensión .md
 };
 // Lee el archivo, Esta promesa del readFiles se ejecuta en cli
 const readFiles = (route) => new Promise((resolve, reject) => {
-  fs.readFile(route, 'utf-8', (error, data) => {
+  fs.readFile(route, 'utf-8', (error, data) => {//lee el contenido del archivo en la ruta especificada
     if (error) {
       reject(error);
     } else {
@@ -34,10 +34,10 @@ const readFiles = (route) => new Promise((resolve, reject) => {
 const getLinks = (route) => new Promise((resolve, reject) => {
   const links = [];
   readFiles(route)
-    .then((data) => {
-      const urlLinks = /\[(.+?)\]\((https?:\/\/[^\s]+)\)/g;
-      let match = urlLinks.exec(data);
-      while (match !== null) {
+    .then((data) => {//se llama la funcion y se espera con la informacion
+      const urlLinks = /\[(.+?)\]\((https?:\/\/[^\s]+)\)/g;//expresion regular que busca los enlaces del formato
+      let match = urlLinks.exec(data);//encuentra el primer enlace que coincida con el formato especificado y guarda la coincidencia en la variable match.
+      while (match !== null) { //ciclo que se ejecutará mientras haya coincidencias
         links.push({
           href: match[2],
           text: match[1],
@@ -50,9 +50,9 @@ const getLinks = (route) => new Promise((resolve, reject) => {
     .catch((error) => reject(error));
 });
 
-const getLinkStatus = (urls) => Promise.all(urls.map((link) => axios.get(link.href)
+const getLinkStatus = (urls) => Promise.all(urls.map((link) => axios.get(link.href) //axios envia una solicitud HTTP GET a la URL especificada en la propiedad href del objeto.
   .then((respuesta) => ({ ...link, status: respuesta.status, message: 'ok' }))
-  // console.log(respuesta);
+  
 
   .catch((error) => { // handle error
     let errorStatus;
@@ -61,18 +61,18 @@ const getLinkStatus = (urls) => Promise.all(urls.map((link) => axios.get(link.hr
       // que esta fuera del rango de 2xx
       errorStatus = error.response.status;
     } else if (error.request) {
-      // La petición fue hecha pero no se recibió respuesta
+      // La petición fue hecha 
       errorStatus = 500;
     } else {
-      // Algo paso al preparar la petición que lanzo un Error
+      //  el recurso no se encontró
       errorStatus = 400;
     }
-    // console.log('errorStatus', errorStatus);
+   
     return { ...link, status: errorStatus, message: 'fail' };
   })));
 
 
-// Esta función recibe un array de objetos que representan los links encontrados en los archivos markdown
+// función recibe un array de objetos que representan los links encontrados en los archivos md
 const linksStats = (array) => `${array.length}`;
 
 // Recibe el mismo array de objetos de la función anterior y utiliza un Set para eliminar los links duplicados. Retorna la cantidad de links únicos encontrados.

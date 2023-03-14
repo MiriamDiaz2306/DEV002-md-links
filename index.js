@@ -31,16 +31,6 @@ const mdLinks = (path, options) => new Promise((resolve, reject) => { //path (la
   });
 });
 
-// console.log(pathExists('C:/Users/adria/Desktop/Laboratoria/DEV001-md-links/prueba/ejemplo.md'));
-// console.log(pathExists('C:/noexiste'));
-// console.log(pathIsAbsolute('./functions'));
-// console.log(turnPathAbsolute('./functions'));
-// console.log(
-// isExtensionMd('C:/Users/adria/Desktop/Laboratoria/DEV001-md-links/prueba/ejemplo.html'));
-// console.log(readFiles('C:/Users/adria/Desktop/Laboratoria/DEV001-md-links/prueba/ejemplo.md'));
-// console.log(createArray('C:/Users/adria/Desktop/Laboratoria/DEV001-md-links/prueba/ejemplo.md'));
-// console.log(mdLinks('./prueba/ejemplo.md'))
-//   .then((res) => console.log('este es de aqui', res));
 
 module.exports = {
   mdLinks,

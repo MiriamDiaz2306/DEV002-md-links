@@ -1,10 +1,10 @@
-#!/usr/bin/env node
+#!/usr/bin/env node // especifica que se utilizará el intérprete de comandos node para ejecutar el script.
 const { mdLinks } = require('./index');
-const { getLinkStatus } = require('./functions');
+const {  linksStats, uniqueLinks, brokenLinks  } = require('./functions');//require se utiliza en Node.js para cargar módulos
 
-const route = process.argv[2];
+const route = process.argv[2]; //propiedad de Node.js para obtener los argumentos que se pasan al script en la línea de comandos.
 const options = {
-  validate: process.argv.includes('--validate') || process.argv.includes('--v'),
+  validate: process.argv.includes('--validate') || process.argv.includes('--v'), //includes-determinar si un array o un string incluye un valor específico
   stats: process.argv.includes('--stats') || process.argv.includes('--s'),
 };
 
@@ -20,26 +20,30 @@ if (route === undefined) {
  if (
 (options.validate && options.stats)
   || (options.stats && options.validate)
-) {
+) {//si si pasa se llama a la función mdLinks para analizar el archivo Md, y se imprimen estadísticas sobre los links encontrados en el archivo
   mdLinks(route, options)
     .then((arrayLinks) => {
-      console.log("validando links y stats");
       console.log(
-        `\n${'TOTAL LINKS  :'} ${totalLinks(arrayLinks)}`
+        `\n                                      
+         Stats & links validation `
       );
       console.log(
-        `\n${'UNIQUE LINKS :'} ${uniqueLinks(arrayLinks)}`
+        `\n
+        ${'Total links:'} ${linksStats(arrayLinks)}`,
       );
       console.log(
-        `\n${'BROKEN LINKS :'} ${brokenLinks(arrayLinks)}`
+        `\n
+        ${'Unique links:'} ${uniqueLinks(arrayLinks)}`,
       );
-
-      // agregar un foreach para que muestre cada link como en el readme
+      console.log(
+        `\n
+        ${'Broken links:'} ${brokenLinks(arrayLinks)}\n`,
+      );
     })
     .catch((error) => {
       console.log(error);
     });
-} else if (options.validate === true) {
+} else if (options.validate === true) { //ocurre si validate es verdadera
   mdLinks(route, options)
     .then((arrayLinks) => {
       console.log( `          
@@ -57,32 +61,37 @@ if (route === undefined) {
     .catch((error) => {
       console.log(error);
     });
-} else if (options.stats && !options.validate) {
+} else if (options.stats && !options.validate) { // mostrar estadísticas sobre los enlaces en el archivo sin validarlos.
   mdLinks(route, options)
     .then((arrayLinks) => {
-      console.log(
-        `link stats`
-      );
-      console.log(
-        `${'TOTAL LINKS  :'} ${totalLinks(arrayLinks)}`,
-      );
-      console.log(
-        `${'UNIQUE LINKS :'} ${uniqueLinks(arrayLinks)}`,
-      );
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+        console.log(
+          `\n                                      
+         Links stats`,
+        );
+        console.log(
+          `\n
+        ${'Total links  :'} ${linksStats(arrayLinks)}`,
+        );
+        console.log(
+          `\n
+        ${'Unique links :'} ${uniqueLinks(arrayLinks)}\n`,
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 } else if (!options.validate && !options.stats && route !== undefined) {
   mdLinks(route, options)
     .then((arrayLinks) => {
       console.log(
-        `Estos links fueron encontrados`);
+        `\n                                                     
+      Estos links fueron encontrados:`,
+      );
       arrayLinks.forEach((link) => {
         console.log(`
-      ${'HREF    :'} ${link.href} 
-      ${'PATH    :'} ${link.file} 
-      ${'TEXT    :'} ${link.text}`);
+      ${'href    :'} ${link.href} 
+      ${'path    :'} ${link.file} 
+      ${'text    :'} ${link.text}`);
       });
       console.log(
         `     
